@@ -64,7 +64,7 @@ int main(void)
             }
             maxarc+=arcos;
         }
-        printf("Os dados estao corretos?\n(S\N)\n");
+        printf("Os dados estao corretos?\n(S/N)\n");
         do{opt=getchar()} while(opt!='s' && opt!='S' && opt!='n' && opt!='N');
     } while(opt!='s' && opt!='S');
     return EXIT_SUCCESS;
