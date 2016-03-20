@@ -11,17 +11,18 @@ int main(void)
     srand(time(NULL));
     int posicao[MAXTAB],
         rotulo[MAXTAB],
-        transicao[MAXTAB],
+        tokens[MAXTAB],
+        habtransicao[MAXTAB][MAXTAB],
         arcovailug[MAXTAB],
         arcovemlug[MAXTAB],
         arcovaitra[MAXTAB],
         arcovemtra[MAXTAB],
         maxpos,
-        maxtok,
         maxtra,
         arcos,
         i,j,
-        maxarc;
+        maxarc,
+        estabilizou;
     char opt;
 
     do
@@ -35,7 +36,6 @@ int main(void)
             /* posicoes, transicoes e arcos inexistentes = -1 */
             posicao[i]=-1; 
             rotulo[i]=1; /* valor padrao de custo */
-            transicao[i]=-1;
             arcovaitra[i] = arcovemtra[i] = arcovailug[i] = arcovemlug[i] = -1;
         }   
         /*fim reset */
@@ -95,6 +95,33 @@ int main(void)
         printf("Os dados estao corretos?\n(S/N)\n");
         do{opt=getchar();} while(opt!='s' && opt!='S' && opt!='n' && opt!='N');
     } while(opt!='s' && opt!='S'); /* do-while de configuracao da rede */
+    /*disparar cronometro aqui*/
+    printf("iniciando simulacao\n");
+    do
+    {
+        estabilizou=1;
+        for(i=0;i<maxarc;i++)        
+            if(arcovemlug[i]!=-1) /* arcos pre transicao */
+                if(posicao[arcovemlug[i]] >= rotulo[i])
+                    habtransicao[arcovaitra[i]][i]=1;
+                else               
+                    habtransicao[arcovaitra[i]][i]=0;
+            else                  /* arcos pos transicao */
+                for(j=0;j<maxarc;j++)                
+                    if(habtransicao[arcovemtra[i]][j]==0)
+                        break;
+                    else if(j==maxarc-1)
+                    {
+                        tokens[arcovailug[i]]+=rotulo[i];
+                        estabilizou=0;
+                    }
+        for(i=0;i<maxpos;i++) /* distribui os tokens gerados nessa rodada aos lugares */
+            posicao[i]+=tokens[i];
+        for(i=0;i<maxtra;i++) /* desabilita transicoes para nova rodada */
+            for(j=0;j<maxarc;j++)
+                habtransicao[i][j]=-1;
+    }while(estabilizou);        
+ 
     return EXIT_SUCCESS;
 }
 
